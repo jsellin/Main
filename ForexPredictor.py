@@ -60,25 +60,15 @@ class ForexPredictor:
 
 
     def preprocess_data(self):
-        #        self.ohlc[['body', 'upwiq', 'downwiq']] = self.ohlc[['body', 'upwiq', 'downwiq']].astype(int)
-        #self.ohlc_pattern[['body', 'upwiq', 'downwiq']] = self.ohlc_pattern[['body', 'upwiq', 'downwiq']].astype(int)
         self.ohlc[['body', 'upwiq', 'downwiq']] = self.scaler.fit_transform(self.ohlc[['body', 'upwiq', 'downwiq']])
         self.ohlc_pattern[['body', 'upwiq', 'downwiq']] = self.scaler.transform(self.ohlc_pattern[['body', 'upwiq', 'downwiq']])
-        print(self.ohlc.columns)
-        print(f"data: {self.ohlc}")
         self.ohlc = pd.get_dummies(self.ohlc, columns=['candle'])
         self.ohlc_pattern = pd.get_dummies(self.ohlc_pattern, columns=['candle'])
         self.features_pattern = self.ohlc_pattern[['body', 'upwiq', 'downwiq', 'candle_bullish', 'candle_bearish']].values
-        #self.target_pattern = self.ohlc_pattern['tag'].values
         self.features = self.ohlc[['body', 'upwiq', 'downwiq', 'candle_bullish', 'candle_bearish']].values
         self.target = self.ohlc['true_tag'].values
         self.target_pattern = self.ohlc_pattern.groupby('sequence_id')['date'].diff().fillna(pd.Timedelta(seconds=0))
         self.ohlc = self.ohlc.sort_values('date', ascending=True)
-        #self.target_pattern = self.ohlc_pattern['tag'].values
-        #time_diff = self.ohlc_pattern.groupby('sequence_id')['date'].diff().fillna(pd.Timedelta(seconds=0))
-        #time_diff = self.ohlc_pattern['date'].diff().unique()  # assuming 'date' is your timestamp column
-        #print(time_diff)
-
 
     def create_sequences(self, features, target, sequence_length):
         features_seq = []
